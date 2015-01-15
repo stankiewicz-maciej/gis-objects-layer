@@ -12,8 +12,6 @@ public class ConnectionFactory {
 	private static ConnectionFactory instance = null;
 	private static final Driver JDBC_DRIVER = new org.postgresql.Driver();
 
-	private Connection connection = null;
-
 	private String url;
 	private String user;
 	private String pass;
@@ -30,19 +28,26 @@ public class ConnectionFactory {
 	}
 
 	public static ConnectionFactory getInstance() {
-		if (instance == null)
-			instance = new ConnectionFactory();
+		if (instance == null) {
+			synchronized (ConnectionFactory.class) {
+				if (instance == null)
+					instance = new ConnectionFactory();
+			}
+		}
 		return instance;
 	}
 
 	public Connection getConnection() {
+		Connection conn = null;
 		try {
-			if ((connection == null) || connection.isClosed())
-				connection = DriverManager.getConnection(url, user, pass);
+			conn = DriverManager.getConnection(url, user, pass);
 		} catch (SQLException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return connection;
+		return conn;
 	}
+	
+	
 
 }

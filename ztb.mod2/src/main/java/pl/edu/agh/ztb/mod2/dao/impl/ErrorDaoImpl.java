@@ -1,13 +1,16 @@
 package pl.edu.agh.ztb.mod2.dao.impl;
 
+import java.util.Properties;
 import java.util.Set;
 
 import pl.edu.agh.ztb.mod2.dao.ErrorDao;
 import pl.edu.agh.ztb.mod2.utils.ConnectionFactory;
+import pl.edu.agh.ztb.mod2.utils.SQLQueriesProvider;
 
 public class ErrorDaoImpl implements ErrorDao {
 
 	private ConnectionFactory cm = ConnectionFactory.getInstance();
+	private Properties queries = SQLQueriesProvider.getInstance().getQueries();
 	
 	@Override
 	public Set<Error> getAllErrors() {

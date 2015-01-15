@@ -6,11 +6,13 @@ import java.util.Set;
 import pl.edu.agh.ztb.mod2.dao.SensorDao;
 import pl.edu.agh.ztb.mod2.model.Sensor;
 import pl.edu.agh.ztb.mod2.utils.ConnectionFactory;
+import pl.edu.agh.ztb.mod2.utils.SQLQueriesProvider;
 
 public class SensorDaoImpl implements SensorDao {
 	
 	private ConnectionFactory cm = ConnectionFactory.getInstance();
-
+	private Properties queries = SQLQueriesProvider.getInstance().getQueries();
+	
 	@Override
 	public Set<Sensor> getAllSensors() {
 		// TODO Auto-generated method stub

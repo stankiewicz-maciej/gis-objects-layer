@@ -1,14 +1,17 @@
 package pl.edu.agh.ztb.mod2.dao.impl;
 
+import java.util.Properties;
 import java.util.Set;
 
 import pl.edu.agh.ztb.mod2.dao.SegmentControllerDao;
 import pl.edu.agh.ztb.mod2.model.SegmentController;
 import pl.edu.agh.ztb.mod2.utils.ConnectionFactory;
+import pl.edu.agh.ztb.mod2.utils.SQLQueriesProvider;
 
 public class SegmentControllersDaoImpl implements SegmentControllerDao {
 
 	private ConnectionFactory cm = ConnectionFactory.getInstance();
+	private Properties queries = SQLQueriesProvider.getInstance().getQueries();
 	
 	@Override
 	public int deleteSegmentController(int id) {
