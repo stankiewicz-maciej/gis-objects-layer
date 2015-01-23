@@ -6,12 +6,11 @@ import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sqlproc.engine.SqlProcessorException;
 import org.sqlproc.engine.SqlSession;
 import org.sqlproc.engine.SqlSessionFactory;
@@ -31,6 +30,11 @@ import pl.edu.agh.ztb.mod2.dao.impl.FixturesDaoImpl;
 import pl.edu.agh.ztb.mod2.dao.impl.SegmentControllersDaoImpl;
 import pl.edu.agh.ztb.mod2.dao.impl.SensorDaoImpl;
 import pl.edu.agh.ztb.mod2.model.Cabinet;
+import pl.edu.agh.ztb.mod2.model.Driver;
+import pl.edu.agh.ztb.mod2.model.Error;
+import pl.edu.agh.ztb.mod2.model.Fixture;
+import pl.edu.agh.ztb.mod2.model.SegmentController;
+import pl.edu.agh.ztb.mod2.model.Sensor;
 import pl.edu.agh.ztb.mod2.utils.ConnectionFactory;
 
 public class Main {
@@ -38,7 +42,7 @@ public class Main {
 	private static final String DB_PROPERTIES_FILE = "db.properties";
 	private static final String[] DB_CLEAR = null;
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	//private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private Connection connection;
 	private SqlSessionFactory sessionFactory;
@@ -54,10 +58,14 @@ public class Main {
 	private static Properties props = null;
 
 	static {
-		initProperties();
+		try {
+			initProperties();
+		} catch (DataObjectDaoException e) {
+			e.printStackTrace();
+		}
 	}
 
-	public Main() throws SQLException {
+	public Main() {
 		String initTablesDDL = props.getProperty("db.initTables");
 		connection = ConnectionFactory.getInstance().getConnection();
 		sessionFactory = new JdbcSessionFactory(connection);
@@ -74,7 +82,7 @@ public class Main {
 		sensorDao = new SensorDaoImpl();
 	}
 
-	private static void initProperties() {
+	private static void initProperties() throws DataObjectDaoException {
 		props = new Properties();
 		FileInputStream in = null;
 		try {
@@ -83,16 +91,14 @@ public class Main {
 					.getResource(DB_PROPERTIES_FILE).getFile());
 			props.load(in);
 		} catch (IOException e) {
-			e.printStackTrace();
-			// TODO: log
+			throw new DataObjectDaoException("Error during loading db properties file", e);
 		} finally {
 			try {
 				if (in != null) {
 					in.close();
 				}
 			} catch (IOException e) {
-				// TODO: log
-				e.printStackTrace();
+				throw new DataObjectDaoException("Error during closing db properties file", e);
 			}
 		}
 	}
@@ -101,7 +107,7 @@ public class Main {
 		return props;
 	}
 
-	public void setupDb() throws SQLException {
+	public void setupDb() throws DataObjectDaoException {
 		SqlSession sqlSession = sessionFactory.getSqlSession();
 		try {
 			sqlSession.executeBatch((DB_CLEAR != null) ? DB_CLEAR : ddls
@@ -122,10 +128,11 @@ public class Main {
 				}
 				count++;
 			}
+			throw new DataObjectDaoException("error during setup database", e);
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws DataObjectDaoException {
 		//to test run as java app
 		Main main = new Main();
 		main.setupDb();
@@ -133,15 +140,141 @@ public class Main {
 		Cabinet c = new Cabinet(1, "ABC");
 		cd.insertCabinet(c);
 		Set<Cabinet> set = cd.getAllCabinets();
-		for (Cabinet cabinet : set) {
+		for (Cabinet cabinet : set) {	
 			System.out.println(cabinet);
 		}
 		Cabinet c1 = cd.getCabinet(1);
 		System.out.println(c1);
-		System.out.println(cd.deleteCabinet(1));
+		/*//System.out.println(cd.deleteCabinet(1));
 		Set<Cabinet> set1 = cd.getAllCabinets();
 		for (Cabinet cabinet : set1) {
 			System.out.println(cabinet);
+		}*/
+		
+
+
+		//********************************************************
+
+		SegmentControllerDao sgd = main.getSegmentControllerDao();
+		SegmentController controller = new SegmentController(1, 1, "firmware", "code", "C3PO");
+		sgd.insertSegmentController(controller);
+		Set<SegmentController> controllerSet = sgd.getAllSegmentControllers();
+		for (SegmentController controller2 : controllerSet) {
+			System.out.println(controller2);
+		}
+
+		SegmentController control = sgd.getSegmentController(1);
+		System.out.println(control);
+		control.setFirmware("firmware2");
+		sgd.updateSegmentController(control);
+		control = sgd.getSegmentController(1);
+		System.out.println(control);
+		controllerSet = sgd.getAllSegmentControllers();
+		for (SegmentController controller2 : controllerSet) {
+			System.out.println(controller2);
+		}
+		controllerSet = sgd.getSegmentControllerByCabinet(1);
+		for (SegmentController controller2 : controllerSet) {
+			System.out.println(controller2);
+		}
+		/*sgd.deleteSegmentController(1);
+		controllerSet = sgd.getAllSegmentControllers();
+		for (SegmentController controller2 : controllerSet) {
+			System.out.println(controller2);
+		}*/
+
+		//**********************FIXTURES**********************************
+
+		FixturesDao fd = main.getFixturesDao();
+		Fixture fixture = new Fixture(1, 1, "on", "dim", 23.4, new Timestamp(23498742), new Timestamp(123874234), "status", "lamp", "ballast", "voltage", "mindimlevel");
+		fd.insertFixture(fixture);
+		Set<Fixture> fixtureSet = fd.getAllFixtures();
+		for (Fixture controller2 : fixtureSet) {
+			System.out.println(controller2);
+		}
+
+		Fixture fixture3 = fd.getFixture(1);
+		System.out.println(fixture3);
+		fixture3.setActual_state("OFF");
+		fd.updateFixture(fixture3);
+		Fixture fixture4 = fd.getFixture(1);
+		System.out.println(fixture4);
+		fixtureSet = fd.getAllFixtures();
+		for (Fixture fixture2 : fixtureSet) {
+			System.out.println(fixture2);
+		}
+		fixtureSet = fd.getFixturesBySegmentCtrl(1);
+		for (Fixture fixture2 : fixtureSet) {
+			System.out.println(fixture2);
+		}
+		/*fd.deleteFixture(1);
+		fixtureSet = fd.getAllFixtures();
+		for (Fixture fixture2 : fixtureSet) {
+			System.out.println(fixture2);
+		}
+		*/
+		//// SENSORS ////////
+		Sensor s = new Sensor(1, 1, 1);
+		SensorDao sensorDao = main.getSensorDao();
+		sensorDao.insertSensor(s);
+		s = sensorDao.getSensor(1);
+		System.out.println(s);
+		Set<Sensor> sensorSet = sensorDao.getAllSensors();
+		for (Sensor x : sensorSet) {
+			System.out.println(x);
+		}
+		s.setSensor_type_id(2);
+		sensorDao.updateSensor(s);
+		System.out.println(sensorDao.getSensor(1));
+		Properties data = new Properties();
+		data.setProperty("a", "A");
+		data.setProperty("b", "B");
+		data.setProperty("c", "C");
+		data.list(System.out);
+		sensorDao.updateSensorData(s.getId(), data);
+		sensorDao.getSensorData(s.getId()).list(System.out);
+		data.remove("a");
+		data.setProperty("d",  "D");
+		sensorDao.updateSensorData(s.getId(), data);
+		sensorDao.getSensorData(s.getId()).list(System.out);
+		
+		
+		/// DRIVERS ////
+		
+		DriverDao dd = main.getDriverDao();
+		Driver driver = new Driver(1, "temp", "on", new Timestamp(23498742), "powerUsage", "21V", "20A", "power", "cosValue", "Zigbee", "firmware", "as8dyasdh", "productType",new Timestamp(928379823), "netState", "dataAcceptance", "parametrizationState", "syncState");
+		dd.insertDriver(driver);
+		Set<Driver> driverSet = dd.getAllDrivers();
+		for (Driver controller2 : driverSet) {
+			System.out.println(controller2);
+		}
+		Driver d = dd.getDriver(1);
+		System.out.println(d);
+		d.setConnectionQuality("off");
+		dd.updateDriver(d);
+		Driver edr = dd.getDriver(1);
+		System.out.println(edr);
+		
+		Driver f = dd.getDriverByFixture(1);
+		System.out.println(f);
+		
+		///ERRORS?////
+		ErrorDao ed = main.getErrorDao();
+		Error e = new Error(1, 0, new Timestamp(50000),"ABC");
+		ed.insertFixtureError(e);
+		Set<Error> errorSet = ed.getAllErrors();
+		for (Cabinet cabinet : set) {
+			System.out.println(cabinet);
+		}
+		errorSet = ed.getFixtureErrors(1);
+		for (Error error : errorSet) {
+			System.out.println(error);
+		}
+
+		ed.getFixtureErrors(1);
+		errorSet = ed.getFixtureErrors(1);
+		for (Error error : errorSet) {
+			System.out.println(error);
 		}
 	}
 

@@ -5,8 +5,8 @@
 	<groupId>pl.edu.agh</groupId>
 	<artifactId>ztb.mod2</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
-	<name>SQL Processor Sample, Simple JDBC</name>
+	<packaging>war</packaging>
+	<name>ZTBModelDao</name>
 
 	<properties>
 		<version.sql-processor>2.4.1</version.sql-processor>
@@ -19,25 +19,6 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.7</version>
-				<executions>
-					<execution>
-						<id>add-source</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>src-gen</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>

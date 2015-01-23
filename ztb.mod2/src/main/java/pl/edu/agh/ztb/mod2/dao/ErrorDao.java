@@ -1,6 +1,7 @@
 package pl.edu.agh.ztb.mod2.dao;
 
 import java.util.Set;
+import pl.edu.agh.ztb.mod2.model.Error;
 
 public interface ErrorDao {
 
@@ -10,6 +11,6 @@ public interface ErrorDao {
 	int clearAllErrors();
 	int clearFixtureErrors(int fixtureId);
 	int clearDriverErrors(int driverId);
-	int insertFixtureError(int fixtureId, Error error);
-	int insertDriverError(int driverId, Error error);
+	int insertFixtureError(Error error);
+	int insertDriverError(Error error);
 }

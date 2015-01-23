@@ -8,6 +8,7 @@ public interface SegmentControllerDao {
 
 	Set<SegmentController> getAllSegmentControllers();
 	SegmentController getSegmentController(int id);
+	Set<SegmentController> getSegmentControllerByCabinet(int cabinetId);
 	int deleteSegmentController(int id);
 	int insertSegmentController(SegmentController segmentController);
 	int updateSegmentController(SegmentController segmentController);

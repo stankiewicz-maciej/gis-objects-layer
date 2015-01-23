@@ -9,7 +9,7 @@ public interface SensorDao {
 
 	Set<Sensor> getAllSensors();
 	Sensor getSensor(int id);
-	Sensor getSensorsBySegmentCtrl(int segmentCtrlId);
+	Set<Sensor> getSensorsBySegmentCtrl(int segmentCtrlId);
 	int deleteSensor(int id);
 	int insertSensor(Sensor sensor);
 	int updateSensor(Sensor sensor);

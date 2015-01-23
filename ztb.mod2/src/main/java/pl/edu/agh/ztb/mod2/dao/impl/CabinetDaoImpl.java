@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import pl.edu.agh.ztb.mod2.DataObjectDaoException;
 import pl.edu.agh.ztb.mod2.dao.CabinetDao;
 import pl.edu.agh.ztb.mod2.model.Cabinet;
 import pl.edu.agh.ztb.mod2.utils.ConnectionFactory;
@@ -19,7 +20,7 @@ public class CabinetDaoImpl implements CabinetDao {
 	private Properties queries = SQLQueriesProvider.getInstance().getQueries();
 
 	@Override
-	public int deleteCabinet(int id) {
+	public int deleteCabinet(int id) throws DataObjectDaoException {
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -28,15 +29,14 @@ public class CabinetDaoImpl implements CabinetDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during delete cabinet", e);
 		} finally {
 			close(ps, conn);
 		}
 	}
 
 	@Override
-	public Set<Cabinet> getAllCabinets() {
+	public Set<Cabinet> getAllCabinets() throws DataObjectDaoException {
 		Set<Cabinet> set = new HashSet<Cabinet>();
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
@@ -48,7 +48,7 @@ public class CabinetDaoImpl implements CabinetDao {
 				set.add(new Cabinet(rs.getInt("id"), rs.getInt("location_id"), rs.getString("number")));
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DataObjectDaoException("Error during get all cabinets", e);
 		} finally {
 			close(rs, ps, conn);
 		}
@@ -56,7 +56,7 @@ public class CabinetDaoImpl implements CabinetDao {
 	}
 
 	@Override
-	public int insertCabinet(Cabinet cabinet) {
+	public int insertCabinet(Cabinet cabinet) throws DataObjectDaoException {
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -66,15 +66,14 @@ public class CabinetDaoImpl implements CabinetDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during insert cabinet", e);
 		} finally {
 			close(ps, conn);
 		}
 	}
 
 	@Override
-	public int updateCabinet(Cabinet cabinet) {
+	public int updateCabinet(Cabinet cabinet) throws DataObjectDaoException {
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -85,15 +84,14 @@ public class CabinetDaoImpl implements CabinetDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during update cabinet", e);
 		} finally {
 			close(ps, conn);
 		}
 	}
 
 	@Override
-	public Cabinet getCabinet(int id) {
+	public Cabinet getCabinet(int id) throws DataObjectDaoException {
 		Cabinet c = null;
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
@@ -105,7 +103,28 @@ public class CabinetDaoImpl implements CabinetDao {
 			if (rs.next())
 				c = new Cabinet(rs.getInt("id"), rs.getInt("location_id"), rs.getString("number"));
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DataObjectDaoException("Error during get cabinet", e);
+		} finally {
+			close(rs, ps, conn);
+		}
+		return c;
+	}
+	
+	@Override
+	public Cabinet getCabinetByLocation(int locationId) throws DataObjectDaoException
+	{
+		Cabinet c = null;
+		Connection conn = cm.getConnection();
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			ps = conn.prepareStatement(queries.getProperty("cabinet.get.location_id"));
+			ps.setInt(1, locationId);
+			rs = ps.executeQuery();
+			if (rs.next())
+				c = new Cabinet(rs.getInt("id"), rs.getInt("location_id"), rs.getString("number"));
+		} catch (SQLException e) {
+			throw new DataObjectDaoException("Error during get cabinet by id", e);
 		} finally {
 			close(rs, ps, conn);
 		}
@@ -114,17 +133,17 @@ public class CabinetDaoImpl implements CabinetDao {
 
 	private void close(ResultSet rs, PreparedStatement ps, Connection conn) {
 		try {
-			rs.close();
+			if (rs != null && !rs.isClosed()) rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		try {
-			ps.close();
+			if (ps != null && !ps.isClosed()) ps.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		try {
-			conn.close();
+			if (conn != null && !conn.isClosed()) conn.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -132,12 +151,12 @@ public class CabinetDaoImpl implements CabinetDao {
 
 	private void close(PreparedStatement ps, Connection conn) {
 		try {
-			ps.close();
+			if (ps != null && !ps.isClosed()) ps.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		try {
-			conn.close();
+			if (conn != null && !conn.isClosed()) conn.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
