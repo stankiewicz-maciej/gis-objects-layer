@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import pl.edu.agh.ztb.mod2.DataObjectDaoException;
 import pl.edu.agh.ztb.mod2.dao.FixturesDao;
 import pl.edu.agh.ztb.mod2.model.Fixture;
 import pl.edu.agh.ztb.mod2.utils.ConnectionFactory;
@@ -19,7 +20,7 @@ public class FixturesDaoImpl implements FixturesDao {
 	private Properties queries = SQLQueriesProvider.getInstance().getQueries();
 	
 	@Override
-	public Set<Fixture> getAllFixtures() {
+	public Set<Fixture> getAllFixtures() throws DataObjectDaoException {
 		Set<Fixture> set = new HashSet<Fixture>();
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
@@ -31,7 +32,7 @@ public class FixturesDaoImpl implements FixturesDao {
 				set.add(new Fixture(rs.getInt("id"), rs.getInt("location_id"), rs.getInt("segment_ctrl_id"), rs.getString("actual_state"), rs.getString("dim_level"), rs.getDouble("hours_on"), rs.getTimestamp("time_of_last_switch_on"), rs.getTimestamp("time_of_last_switch_off"), rs.getString("hid_status"), rs.getString("device_type"), rs.getString("ballasts_and_work_type"), rs.getString("voltage_reset"), rs.getString("min_dim_level")));
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DataObjectDaoException("Error during getting all fixtures", e);
 		} finally {
 			close(rs, ps, conn);
 		}
@@ -39,7 +40,7 @@ public class FixturesDaoImpl implements FixturesDao {
 	}
 
 	@Override
-	public Fixture getFixture(int id) {
+	public Fixture getFixture(int id) throws DataObjectDaoException {
 		Fixture c = null;
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
@@ -51,7 +52,7 @@ public class FixturesDaoImpl implements FixturesDao {
 			if (rs.next())
 				c = new Fixture(rs.getInt("id"), rs.getInt("location_id"), rs.getInt("segment_ctrl_id"), rs.getString("actual_state"), rs.getString("dim_level"), rs.getDouble("hours_on"), rs.getTimestamp("time_of_last_switch_on"), rs.getTimestamp("time_of_last_switch_off"), rs.getString("hid_status"), rs.getString("device_type"), rs.getString("ballasts_and_work_type"), rs.getString("voltage_reset"), rs.getString("min_dim_level"));
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DataObjectDaoException("Error during getting fixture", e);
 		} finally {
 			close(rs, ps, conn);
 		}
@@ -59,19 +60,39 @@ public class FixturesDaoImpl implements FixturesDao {
 	}
 
 	@Override
-	public Set<Fixture> getFixturesBySegmentCtrl(int segmentCtrlId) {
+	public Fixture getFixtureByLocation(int locationId) throws DataObjectDaoException {
+		Fixture c = null;
+		Connection conn = cm.getConnection();
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			ps = conn.prepareStatement(queries.getProperty("fixture.get.location_id"));
+			ps.setInt(1, locationId);
+			rs = ps.executeQuery();
+			if (rs.next())
+				c = new Fixture(rs.getInt("id"), rs.getInt("location_id"), rs.getInt("segment_ctrl_id"), rs.getString("actual_state"), rs.getString("dim_level"), rs.getDouble("hours_on"), rs.getTimestamp("time_of_last_switch_on"), rs.getTimestamp("time_of_last_switch_off"), rs.getString("hid_status"), rs.getString("device_type"), rs.getString("ballasts_and_work_type"), rs.getString("voltage_reset"), rs.getString("min_dim_level"));
+		} catch (SQLException e) {
+			throw new DataObjectDaoException("Error during getting fixture", e);
+		} finally {
+			close(rs, ps, conn);
+		}
+		return c;
+	}
+
+	@Override
+	public Set<Fixture> getFixturesBySegmentCtrl(int segmentCtrlId) throws DataObjectDaoException {
 		Set<Fixture> set = new HashSet<Fixture>();
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			ps = conn.prepareStatement(queries.getProperty("fixture.get.segmentctrlid"));
+			ps = conn.prepareStatement(queries.getProperty("fixture.get.segment_ctrl_id"));
 			ps.setInt(1, segmentCtrlId);
 			rs = ps.executeQuery();
 			while (rs.next()) 
 				set.add(new Fixture(rs.getInt("id"), rs.getInt("location_id"), rs.getInt("segment_ctrl_id"), rs.getString("actual_state"), rs.getString("dim_level"), rs.getDouble("hours_on"), rs.getTimestamp("time_of_last_switch_on"), rs.getTimestamp("time_of_last_switch_off"), rs.getString("hid_status"), rs.getString("device_type"), rs.getString("ballasts_and_work_type"), rs.getString("voltage_reset"), rs.getString("min_dim_level")));
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DataObjectDaoException("Error during getting fixture", e);
 		} finally {
 			close(rs, ps, conn);
 		}
@@ -79,7 +100,7 @@ public class FixturesDaoImpl implements FixturesDao {
 	}
 
 	@Override
-	public int deleteFixture(int id) {
+	public int deleteFixture(int id) throws DataObjectDaoException {
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -88,15 +109,14 @@ public class FixturesDaoImpl implements FixturesDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during deleting fixture", e);
 		} finally {
 			close(ps, conn);
 		}
 	}
 
 	@Override
-	public int insertFixture(Fixture fixture) {
+	public int insertFixture(Fixture fixture) throws DataObjectDaoException {
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -116,15 +136,14 @@ public class FixturesDaoImpl implements FixturesDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during inserting fixture", e);
 		} finally {
 			close(ps, conn);
 		}
 	}
 
 	@Override
-	public int updateFixture(Fixture fixture) {
+	public int updateFixture(Fixture fixture) throws DataObjectDaoException {
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -145,8 +164,7 @@ public class FixturesDaoImpl implements FixturesDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during updating fixture", e);
 		} finally {
 			close(ps, conn);
 		}

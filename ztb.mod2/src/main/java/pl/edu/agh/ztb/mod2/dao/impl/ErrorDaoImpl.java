@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import pl.edu.agh.ztb.mod2.DataObjectDaoException;
 import pl.edu.agh.ztb.mod2.dao.ErrorDao;
 import pl.edu.agh.ztb.mod2.utils.ConnectionFactory;
 import pl.edu.agh.ztb.mod2.utils.SQLQueriesProvider;
@@ -20,7 +21,7 @@ public class ErrorDaoImpl implements ErrorDao {
 	private Properties queries = SQLQueriesProvider.getInstance().getQueries();
 
 	@Override
-	public Set<Error> getAllErrors() {
+	public Set<Error> getAllErrors() throws DataObjectDaoException {
 		Set<Error> set = new HashSet<Error>();
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
@@ -32,7 +33,7 @@ public class ErrorDaoImpl implements ErrorDao {
 				set.add(new Error(rs.getInt("id"), rs.getInt("fixture_id"), rs.getInt("driver_id"), rs.getTimestamp("timestamp"), rs.getString("error_type")));
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DataObjectDaoException("Error during getting all errors", e);
 		} finally {
 			close(rs, ps, conn);
 		}
@@ -40,7 +41,7 @@ public class ErrorDaoImpl implements ErrorDao {
 	}
 
 	@Override
-	public Set<Error> getFixtureErrors(int fixtureId) {
+	public Set<Error> getFixtureErrors(int fixtureId) throws DataObjectDaoException {
 		Set<Error> set = new HashSet<Error>();
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
@@ -53,7 +54,7 @@ public class ErrorDaoImpl implements ErrorDao {
 				set.add(new Error(rs.getInt("id"), rs.getInt("fixture_id"), rs.getInt("driver_id"), rs.getTimestamp("timestamp"), rs.getString("error_type")));
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DataObjectDaoException("Error during  getting fixture error", e);
 		} finally {
 			close(rs, ps, conn);
 		}
@@ -61,7 +62,7 @@ public class ErrorDaoImpl implements ErrorDao {
 	}
 
 	@Override
-	public Set<Error> getDriverErrors(int driverId) {
+	public Set<Error> getDriverErrors(int driverId) throws DataObjectDaoException {
 			Set<Error> set = new HashSet<Error>();
 			Connection conn = cm.getConnection();
 			PreparedStatement ps = null;
@@ -74,7 +75,7 @@ public class ErrorDaoImpl implements ErrorDao {
 					set.add(new Error(rs.getInt("id"), rs.getInt("fixture_id"), rs.getInt("driver_id"), rs.getTimestamp("timestamp"), rs.getString("error_type")));
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				throw new DataObjectDaoException("Error during  getting driver error", e);
 			} finally {
 				close(rs, ps, conn);
 			}
@@ -82,7 +83,7 @@ public class ErrorDaoImpl implements ErrorDao {
 	}
 
 	@Override
-	public int clearAllErrors() {
+	public int clearAllErrors() throws DataObjectDaoException {
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -90,15 +91,14 @@ public class ErrorDaoImpl implements ErrorDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during clearing all errors", e);
 		} finally {
 			close(ps, conn);
 		}
 	}
 
 	@Override
-	public int clearFixtureErrors(int fixtureId) {
+	public int clearFixtureErrors(int fixtureId) throws DataObjectDaoException {
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -107,15 +107,14 @@ public class ErrorDaoImpl implements ErrorDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during clearing fixture error", e);
 		} finally {
 			close(ps, conn);
 		}
 	}
 
 	@Override
-	public int clearDriverErrors(int driverId) {
+	public int clearDriverErrors(int driverId) throws DataObjectDaoException {
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -124,15 +123,14 @@ public class ErrorDaoImpl implements ErrorDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during clearing driver error", e);
 		} finally {
 			close(ps, conn);
 		}
 	}
 
 	@Override
-	public int insertFixtureError(Error error) {
+	public int insertFixtureError(Error error) throws DataObjectDaoException {
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -143,16 +141,15 @@ public class ErrorDaoImpl implements ErrorDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during inserting fixture error", e);
 		} finally {
 			close(ps, conn);
 		}
 	}
 
 	@Override
-	public int insertDriverError(Error error) {
-		Connection conn = cm.getConnection();
+	public int insertDriverError(Error error) throws DataObjectDaoException {
+	Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
 			ps = conn.prepareStatement(queries.getProperty("errors.insert.driver"));
@@ -162,8 +159,7 @@ public class ErrorDaoImpl implements ErrorDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during inserting driver error", e);
 		} finally {
 			close(ps, conn);
 		}

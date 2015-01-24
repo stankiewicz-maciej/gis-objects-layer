@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import pl.edu.agh.ztb.mod2.DataObjectDaoException;
 import pl.edu.agh.ztb.mod2.dao.SegmentControllerDao;
 import pl.edu.agh.ztb.mod2.model.SegmentController;
 import pl.edu.agh.ztb.mod2.utils.ConnectionFactory;
@@ -19,7 +20,7 @@ public class SegmentControllersDaoImpl implements SegmentControllerDao {
 	private Properties queries = SQLQueriesProvider.getInstance().getQueries();
 	
 	@Override
-	public int deleteSegmentController(int id) {
+	public int deleteSegmentController(int id) throws DataObjectDaoException {
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -28,15 +29,14 @@ public class SegmentControllersDaoImpl implements SegmentControllerDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during deleting segment controller", e);
 		} finally {
 			close(ps, conn);
 		}
 	}
 
 	@Override
-	public Set<SegmentController> getAllSegmentControllers() {
+	public Set<SegmentController> getAllSegmentControllers() throws DataObjectDaoException {
 		Set<SegmentController> set = new HashSet<SegmentController>();
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
@@ -48,7 +48,7 @@ public class SegmentControllersDaoImpl implements SegmentControllerDao {
 				set.add(new SegmentController(rs.getInt("id"), rs.getInt("cabinet_id"), rs.getString("firmware"), rs.getString("product_code"), rs.getString("number")));
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DataObjectDaoException("Error during getting all segment controllers", e);
 		} finally {
 			close(rs, ps, conn);
 		}
@@ -56,7 +56,7 @@ public class SegmentControllersDaoImpl implements SegmentControllerDao {
 	}
 
 	@Override
-	public SegmentController getSegmentController(int id) {
+	public SegmentController getSegmentController(int id) throws DataObjectDaoException {
 		SegmentController sc = null;
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
@@ -68,7 +68,7 @@ public class SegmentControllersDaoImpl implements SegmentControllerDao {
 			if (rs.next())
 				sc = new SegmentController(rs.getInt("id"), rs.getInt("cabinet_id"), rs.getString("firmware"), rs.getString("product_code"), rs.getString("number"));
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DataObjectDaoException("Error during getting segment controller", e);
 		} finally {
 			close(rs, ps, conn);
 		}
@@ -76,7 +76,7 @@ public class SegmentControllersDaoImpl implements SegmentControllerDao {
 	}
 
 	@Override
-	public Set<SegmentController> getSegmentControllerByCabinet(int cabinetId) {
+	public Set<SegmentController> getSegmentControllerByCabinet(int cabinetId) throws DataObjectDaoException {
 		Set<SegmentController> set = new HashSet<SegmentController>();
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
@@ -89,7 +89,7 @@ public class SegmentControllersDaoImpl implements SegmentControllerDao {
 				set.add(new SegmentController(rs.getInt("id"), rs.getInt("cabinet_id"), rs.getString("firmware"), rs.getString("product_code"), rs.getString("number")));
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DataObjectDaoException("Error during getting segment controller", e);
 		} finally {
 			close(rs, ps, conn);
 		}
@@ -97,7 +97,7 @@ public class SegmentControllersDaoImpl implements SegmentControllerDao {
 	}
 
 	@Override
-	public int insertSegmentController(SegmentController segmentController) {
+	public int insertSegmentController(SegmentController segmentController) throws DataObjectDaoException {
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -109,15 +109,14 @@ public class SegmentControllersDaoImpl implements SegmentControllerDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during inserting segment controller", e);
 		} finally {
 			close(ps, conn);
 		}
 	}
 
 	@Override
-	public int updateSegmentController(SegmentController segmentController) {
+	public int updateSegmentController(SegmentController segmentController) throws DataObjectDaoException {
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -130,8 +129,7 @@ public class SegmentControllersDaoImpl implements SegmentControllerDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during updating segment controller", e);
 		} finally {
 			close(ps, conn);
 		}

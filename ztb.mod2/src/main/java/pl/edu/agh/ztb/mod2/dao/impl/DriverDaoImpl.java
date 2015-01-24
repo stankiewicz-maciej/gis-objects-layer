@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import pl.edu.agh.ztb.mod2.DataObjectDaoException;
 import pl.edu.agh.ztb.mod2.dao.DriverDao;
 import pl.edu.agh.ztb.mod2.model.Driver;
 import pl.edu.agh.ztb.mod2.utils.ConnectionFactory;
@@ -19,7 +20,7 @@ public class DriverDaoImpl implements DriverDao {
 	private Properties queries = SQLQueriesProvider.getInstance().getQueries();
 	
 	@Override
-	public Set<Driver> getAllDrivers() {
+	public Set<Driver> getAllDrivers() throws DataObjectDaoException {
 		Set<Driver> set = new HashSet<Driver>();
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
@@ -31,7 +32,7 @@ public class DriverDaoImpl implements DriverDao {
 				set.add(new Driver(rs.getInt("id"), rs.getInt("fixture_id"), rs.getString("temperature"), rs.getString("connection_quality"), rs.getTimestamp("system_time"), rs.getString("power_usage"), rs.getString("voltage"), rs.getString("current"), rs.getString("power"), rs.getString("cos_value"), rs.getString("zigbee_address"), rs.getString("firmware"), rs.getString("serial_number"), rs.getString("product_type"), rs.getTimestamp("deployment_date"), rs.getString("net_state"), rs.getString("data_acceptance_state"), rs.getString("parametrization_state"), rs.getString("data_searching_state")));
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DataObjectDaoException("Error during getting all drivers", e);
 		} finally {
 			close(rs, ps, conn);
 		}
@@ -39,7 +40,7 @@ public class DriverDaoImpl implements DriverDao {
 	}
 
 	@Override
-	public Driver getDriver(int id) {
+	public Driver getDriver(int id) throws DataObjectDaoException {
 		Driver c = null;
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
@@ -51,7 +52,7 @@ public class DriverDaoImpl implements DriverDao {
 			if (rs.next())
 				c = new Driver(rs.getInt("id"), rs.getInt("fixture_id"), rs.getString("temperature"), rs.getString("connection_quality"), rs.getTimestamp("system_time"), rs.getString("power_usage"), rs.getString("voltage"), rs.getString("current"), rs.getString("power"), rs.getString("cos_value"), rs.getString("zigbee_address"), rs.getString("firmware"), rs.getString("serial_number"), rs.getString("product_type"), rs.getTimestamp("deployment_date"), rs.getString("net_state"), rs.getString("data_acceptance_state"), rs.getString("parametrization_state"), rs.getString("data_searching_state"));
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DataObjectDaoException("Error during getting driver", e);
 		} finally {
 			close(rs, ps, conn);
 		}
@@ -59,19 +60,19 @@ public class DriverDaoImpl implements DriverDao {
 	}
 
 	@Override
-	public Driver getDriverByFixture(int fixtureId) {
+	public Driver getDriverByFixture(int fixtureId) throws DataObjectDaoException {
 		Driver c = null;
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			ps = conn.prepareStatement(queries.getProperty("driver.get.fixtureid"));
+			ps = conn.prepareStatement(queries.getProperty("driver.get.fixture_id"));
 			ps.setInt(1, fixtureId);
 			rs = ps.executeQuery();
 			while (rs.next()) 
 				c = new Driver(rs.getInt("id"), rs.getInt("fixture_id"), rs.getString("temperature"), rs.getString("connection_quality"), rs.getTimestamp("system_time"), rs.getString("power_usage"), rs.getString("voltage"), rs.getString("current"), rs.getString("power"), rs.getString("cos_value"), rs.getString("zigbee_address"), rs.getString("firmware"), rs.getString("serial_number"), rs.getString("product_type"), rs.getTimestamp("deployment_date"), rs.getString("net_state"), rs.getString("data_acceptance_state"), rs.getString("parametrization_state"), rs.getString("data_searching_state"));
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DataObjectDaoException("Error during getting driver", e);
 		} finally {
 			close(rs, ps, conn);
 		}
@@ -79,7 +80,7 @@ public class DriverDaoImpl implements DriverDao {
 	}
 
 	@Override
-	public int deleteDriver(int id) {
+	public int deleteDriver(int id) throws DataObjectDaoException {
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -88,15 +89,14 @@ public class DriverDaoImpl implements DriverDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during deleting driver", e);
 		} finally {
 			close(ps, conn);
 		}
 	}
 
 	@Override
-	public int insertDriver(Driver driver) {
+	public int insertDriver(Driver driver) throws DataObjectDaoException {
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -122,15 +122,14 @@ public class DriverDaoImpl implements DriverDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during inserting driver", e);
 		} finally {
 			close(ps, conn);
 		}
 	}
 
 	@Override
-	public int updateDriver(Driver driver) {
+	public int updateDriver(Driver driver) throws DataObjectDaoException {
 		Connection conn = cm.getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -157,8 +156,7 @@ public class DriverDaoImpl implements DriverDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
+			throw new DataObjectDaoException("Error during updating driver", e);
 		} finally {
 			close(ps, conn);
 		}
