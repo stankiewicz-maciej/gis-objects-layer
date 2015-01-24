@@ -29,7 +29,7 @@ public class CabinetDaoImpl implements CabinetDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			throw new DataObjectDaoException("Error during delete cabinet", e);
+			throw new DataObjectDaoException("Error during deleting cabinet", e);
 		} finally {
 			close(ps, conn);
 		}
@@ -48,7 +48,7 @@ public class CabinetDaoImpl implements CabinetDao {
 				set.add(new Cabinet(rs.getInt("id"), rs.getInt("location_id"), rs.getString("number")));
 			}
 		} catch (SQLException e) {
-			throw new DataObjectDaoException("Error during get all cabinets", e);
+			throw new DataObjectDaoException("Error during getting all cabinets", e);
 		} finally {
 			close(rs, ps, conn);
 		}
@@ -66,7 +66,7 @@ public class CabinetDaoImpl implements CabinetDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			throw new DataObjectDaoException("Error during insert cabinet", e);
+			throw new DataObjectDaoException("Error during inserting cabinet", e);
 		} finally {
 			close(ps, conn);
 		}
@@ -84,7 +84,7 @@ public class CabinetDaoImpl implements CabinetDao {
 			int rs = ps.executeUpdate();
 			return rs;
 		} catch (SQLException e) {
-			throw new DataObjectDaoException("Error during update cabinet", e);
+			throw new DataObjectDaoException("Error during updating cabinet", e);
 		} finally {
 			close(ps, conn);
 		}
@@ -103,7 +103,7 @@ public class CabinetDaoImpl implements CabinetDao {
 			if (rs.next())
 				c = new Cabinet(rs.getInt("id"), rs.getInt("location_id"), rs.getString("number"));
 		} catch (SQLException e) {
-			throw new DataObjectDaoException("Error during get cabinet", e);
+			throw new DataObjectDaoException("Error during getting cabinet", e);
 		} finally {
 			close(rs, ps, conn);
 		}
@@ -124,7 +124,7 @@ public class CabinetDaoImpl implements CabinetDao {
 			if (rs.next())
 				c = new Cabinet(rs.getInt("id"), rs.getInt("location_id"), rs.getString("number"));
 		} catch (SQLException e) {
-			throw new DataObjectDaoException("Error during get cabinet by id", e);
+			throw new DataObjectDaoException("Error during getting cabinet by id", e);
 		} finally {
 			close(rs, ps, conn);
 		}
