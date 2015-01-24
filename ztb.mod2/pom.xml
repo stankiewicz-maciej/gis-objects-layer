@@ -5,7 +5,7 @@
 	<groupId>pl.edu.agh</groupId>
 	<artifactId>ztb.mod2</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>ZTBModelDao</name>
 
 	<properties>
@@ -19,6 +19,27 @@
 
 	<build>
 		<plugins>
+		<plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+         <archive>
+      <manifest>
+        <mainClass>pl.edu.agh.ztb.mod2.ObjectLayerService</mainClass>
+      </manifest>
+    </archive>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+      </plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
@@ -84,11 +105,7 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>${version.slf4j}</version>
 		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
-		</dependency>
+		
 	</dependencies>
 
 	<repositories>
@@ -96,13 +113,6 @@
 			<id>central</id>
 			<url>http://repo1.maven.org/maven2</url>
 		</repository>
-		<repository>
-			<id>jboss-public-repository-group</id>
-			<url>https://repository.jboss.org/nexus/content/groups/public-jboss</url>
-		</repository>
-		<repository>
-			<id>sonatype-public-repository-group</id>
-			<url>https://oss.sonatype.org/content/groups/public</url>
-		</repository>
+		
 	</repositories>
 </project>

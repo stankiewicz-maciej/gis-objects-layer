@@ -1,10 +1,10 @@
 package pl.edu.agh.ztb.mod2.utils;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
-import pl.edu.agh.ztb.mod2.Main;
+import pl.edu.agh.ztb.mod2.ObjectLayerService;
 
 public class SQLQueriesProvider {
 
@@ -14,10 +14,10 @@ public class SQLQueriesProvider {
 
 	private SQLQueriesProvider() {
 		queries = new Properties();
-		FileInputStream in = null;
+		InputStream in = null;
 		try {
-			ClassLoader classLoader = Main.class.getClassLoader();
-			in = new FileInputStream(classLoader.getResource(SQL_QUERIES_FILE).getFile());
+			ClassLoader classLoader = ObjectLayerService.class.getClassLoader();
+			in = classLoader.getResourceAsStream(SQL_QUERIES_FILE);
 			queries.load(in);
 		} catch (IOException e) {
 			e.printStackTrace();

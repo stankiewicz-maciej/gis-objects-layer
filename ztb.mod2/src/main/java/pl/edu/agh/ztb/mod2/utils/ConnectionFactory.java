@@ -5,7 +5,7 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import pl.edu.agh.ztb.mod2.Main;
+import pl.edu.agh.ztb.mod2.ObjectLayerService;
 
 public class ConnectionFactory {
 
@@ -22,9 +22,9 @@ public class ConnectionFactory {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		url = Main.getProperties().getProperty("db.url");
-		user = Main.getProperties().getProperty("db.user");
-		pass = Main.getProperties().getProperty("db.pass");
+		url = ObjectLayerService.getProperties().getProperty("db.url");
+		user = ObjectLayerService.getProperties().getProperty("db.user");
+		pass = ObjectLayerService.getProperties().getProperty("db.pass");
 	}
 
 	public static ConnectionFactory getInstance() {

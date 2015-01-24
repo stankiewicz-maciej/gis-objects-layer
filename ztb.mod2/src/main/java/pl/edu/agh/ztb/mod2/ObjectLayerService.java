@@ -1,11 +1,8 @@
 package pl.edu.agh.ztb.mod2;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.BatchUpdateException;
+import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Properties;
@@ -37,12 +34,10 @@ import pl.edu.agh.ztb.mod2.model.SegmentController;
 import pl.edu.agh.ztb.mod2.model.Sensor;
 import pl.edu.agh.ztb.mod2.utils.ConnectionFactory;
 
-public class Main {
+public class ObjectLayerService {
 
 	private static final String DB_PROPERTIES_FILE = "db.properties";
 	private static final String[] DB_CLEAR = null;
-
-	//private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private Connection connection;
 	private SqlSessionFactory sessionFactory;
@@ -65,7 +60,7 @@ public class Main {
 		}
 	}
 
-	public Main() {
+	public ObjectLayerService() {
 		String initTablesDDL = props.getProperty("db.initTables");
 		connection = ConnectionFactory.getInstance().getConnection();
 		sessionFactory = new JdbcSessionFactory(connection);
@@ -84,13 +79,12 @@ public class Main {
 
 	private static void initProperties() throws DataObjectDaoException {
 		props = new Properties();
-		FileInputStream in = null;
+		InputStream in = null;
 		try {
-			ClassLoader classLoader = Main.class.getClassLoader();
-			in = new FileInputStream(classLoader
-					.getResource(DB_PROPERTIES_FILE).getFile());
+			ClassLoader classLoader = ObjectLayerService.class.getClassLoader();
+			in = classLoader.getResourceAsStream(DB_PROPERTIES_FILE);
 			props.load(in);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new DataObjectDaoException("Error during loading db properties file", e);
 		} finally {
 			try {
@@ -107,35 +101,23 @@ public class Main {
 		return props;
 	}
 
-	public void setupDb() throws DataObjectDaoException {
+	public void initDB() throws DataObjectDaoException {
 		SqlSession sqlSession = sessionFactory.getSqlSession();
 		try {
 			sqlSession.executeBatch((DB_CLEAR != null) ? DB_CLEAR : ddls
 					.toArray(new String[0]));
 		} catch (SqlProcessorException e) {
-			// TODO: for init debug only
-			SQLException ex = ((SQLException) e.getCause()).getNextException();
-			ex.printStackTrace();
-			int[] updateCount = ((BatchUpdateException) e.getCause())
-					.getUpdateCounts();
-			int count = 1;
-			for (int i : updateCount) {
-				if (i == Statement.EXECUTE_FAILED) {
-					System.out.println("Error on request " + count
-							+ ": Execute failed");
-				} else {
-					System.out.println("Request " + count + ": OK");
-				}
-				count++;
-			}
-			throw new DataObjectDaoException("error during setup database", e);
+			throw new DataObjectDaoException("Error during database setup", e);
 		}
 	}
 
 	public static void main(String[] args) throws DataObjectDaoException {
 		//to test run as java app
-		Main main = new Main();
-		main.setupDb();
+		ObjectLayerService main = new ObjectLayerService();
+		if (args.length > 0 && args[0].equals("init"))
+			main.initDB();
+		
+		
 		CabinetDao cd = main.getCabinetDao();
 		Cabinet c = new Cabinet(1, "ABC");
 		cd.insertCabinet(c);
